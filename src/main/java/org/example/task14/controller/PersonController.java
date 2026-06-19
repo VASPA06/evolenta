@@ -1,6 +1,7 @@
-package org.example.task14;
+package org.example.task14.controller;
 
 
+import org.example.task14.dto.Person;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-public class MainController {
+public class PersonController {
     private final List<Person> persons = new ArrayList<>(Arrays.asList(
             new Person(1, "Ivan", "Ivanovich", "Ivanov", LocalDate.of(1999, 2,3)),
             new Person(2, "Петр", "Петрович", "Петров", LocalDate.of(2002, 2,2)),

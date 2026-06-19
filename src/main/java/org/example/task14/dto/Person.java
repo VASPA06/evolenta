@@ -1,4 +1,4 @@
-package org.example.task14;
+package org.example.task14.dto;
 
 import lombok.Getter;
 import lombok.Setter;
