@@ -1,40 +1,44 @@
 package org.example.task14.controller;
 
 import org.example.task14.dto.Message;
+import org.example.task14.repository.MessageRepository;
+import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 public class MessageController {
-    private List<Message> messages;
+    private MessageRepository repository;
+    private List<Message> messages = new ArrayList<Message>(Arrays.asList(
+            new Message("Письмо о любви", "Я тебя люблю", LocalDate.now()),
+            new Message("Письмо о ненависти", "Я тебя ненавижу", LocalDate.now()),
+            new Message("Письмо о страхе", "Я тебя боюсь", LocalDate.now()))
+    );
+
     @GetMapping("/message")
     public Iterable<Message> getMessages() {
-        return messages;
+        return repository.findAll();
     }
     @GetMapping("/message/{id}")
     public Optional<Message> getMessageById(@PathVariable int id) {
-        return messages.stream().filter(m -> m.getId() == id).findFirst();
+        return repository.findById(id);
     }
     @PostMapping("/message")
     public ResponseEntity<Message> addMessage(@RequestBody Message message) {
-        messages.add(message);
+        repository.save(message);
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
     @PutMapping("/message/{id}")
     public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
-        int index = -1;
-        for(Message m : messages) {
-            if (m.getId() == id) {
-                index = messages.indexOf(m);
-                messages.set(index, message);
-            }
-        }
-        return index == -1 ? addMessage(message)
-                : new ResponseEntity<>(message, HttpStatus.OK);
+        HttpStatus status =  repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
+        return new ResponseEntity<>(message, status);
     }
     @DeleteMapping("/message/{id}")
     public void deleteMessage(@PathVariable int id) {
