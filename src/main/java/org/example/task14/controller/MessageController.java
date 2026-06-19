@@ -2,6 +2,7 @@ package org.example.task14.controller;
 
 import org.example.task14.dto.Message;
 import org.example.task14.repository.MessageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @RestController
 public class MessageController {
+    @Autowired
     private MessageRepository repository;
     private List<Message> messages = new ArrayList<Message>(Arrays.asList(
             new Message("Письмо о любви", "Я тебя люблю", LocalDate.now()),
@@ -37,12 +39,18 @@ public class MessageController {
     }
     @PutMapping("/message/{id}")
     public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
-        HttpStatus status =  repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
-        return new ResponseEntity<>(message, status);
+        return repository.findById(id).map(m -> {
+            m.setId(id);
+            m.setTitle(message.getTitle());
+            m.setText(message.getText());
+            m.setTime(message.getTime());
+            repository.save(m);
+            return new ResponseEntity<>(m, HttpStatus.OK);
+        }).orElse(new ResponseEntity<>(message, HttpStatus.CREATED));
     }
     @DeleteMapping("/message/{id}")
     public void deleteMessage(@PathVariable int id) {
         Optional<Message> message = getMessageById(id);
-        messages.remove(message);
+        repository.deleteById(id);
     }
 }

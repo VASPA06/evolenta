@@ -1,8 +1,8 @@
 package org.example.task14.controller;
 
 
-import org.example.task14.PersonRepository;
 import org.example.task14.dto.Person;
+import org.example.task14.repository.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +35,15 @@ public class PersonController {
     }
     @PutMapping("/person/{id}")
     public ResponseEntity<Person>updatePerson(@PathVariable int id, @RequestBody Person person) {
-        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
-        return  new ResponseEntity<>(repository.save(person), status);
+        return repository.findById(id).map(p -> {
+            p.setId(id);
+            p.setFirstname(person.getFirstname());
+            p.setSurname(person.getSurname());
+            p.setLastname(person.getLastname());
+            p.setBirthday(person.getBirthday());
+            repository.save(p);
+            return new ResponseEntity<>(p, HttpStatus.OK);
+        }).orElse(new ResponseEntity<>(person, HttpStatus.CREATED));
     }
     @GetMapping("/person/{id}")
     public Optional<Person> findPersonById(@PathVariable int id) {
