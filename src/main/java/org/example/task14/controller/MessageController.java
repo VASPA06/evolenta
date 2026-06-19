@@ -16,7 +16,7 @@ public class MessageController {
         return messages;
     }
     @GetMapping("/message/{id}")
-    public Optional<Message> getMessageById(@RequestParam int id) {
+    public Optional<Message> getMessageById(@PathVariable int id) {
         return messages.stream().filter(m -> m.getId() == id).findFirst();
     }
     @PostMapping("/message")
@@ -25,7 +25,7 @@ public class MessageController {
         return new ResponseEntity<>(message, HttpStatus.CREATED);
     }
     @PutMapping("/message/{id}")
-    public ResponseEntity<Message> updateMessage(@RequestParam int id, @RequestBody Message message) {
+    public ResponseEntity<Message> updateMessage(@PathVariable int id, @RequestBody Message message) {
         int index = -1;
         for(Message m : messages) {
             if (m.getId() == id) {
@@ -37,7 +37,7 @@ public class MessageController {
                 : new ResponseEntity<>(message, HttpStatus.OK);
     }
     @DeleteMapping("/message/{id}")
-    public void deleteMessage(@RequestParam int id) {
+    public void deleteMessage(@PathVariable int id) {
         Optional<Message> message = getMessageById(id);
         messages.remove(message);
     }
