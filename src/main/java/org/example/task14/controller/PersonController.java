@@ -1,7 +1,9 @@
 package org.example.task14.controller;
 
 
+import org.example.task14.PersonRepository;
 import org.example.task14.dto.Person;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,8 @@ import java.util.Optional;
 
 @RestController
 public class PersonController {
+    @Autowired
+    private PersonRepository repository;
     private final List<Person> persons = new ArrayList<>(Arrays.asList(
             new Person(1, "Ivan", "Ivanovich", "Ivanov", LocalDate.of(1999, 2,3)),
             new Person(2, "Петр", "Петрович", "Петров", LocalDate.of(2002, 2,2)),
@@ -22,35 +26,24 @@ public class PersonController {
     ));
     @GetMapping("/person")
     public Iterable<Person> getPersons() {
-        return persons;
+        return repository.findAll();
     }
     @PostMapping("/person")
     public Person addPerson(@RequestBody Person person) {
-        persons.add(person);
+        repository.save(person);
         return person;
     }
     @PutMapping("/person/{id}")
     public ResponseEntity<Person>updatePerson(@PathVariable int id, @RequestBody Person person) {
-        int index = -1;
-        for(Person p : persons) {
-            if (p.getId() == id) {
-                index = persons.indexOf(p);
-                persons.set(index, person);
-            }
-        }
-        return index == -1 ? new ResponseEntity<>(addPerson(person), HttpStatus.CREATED)
-                : new ResponseEntity<>(person, HttpStatus.OK);
+        HttpStatus status = repository.existsById(id) ? HttpStatus.OK : HttpStatus.CREATED;
+        return  new ResponseEntity<>(repository.save(person), status);
     }
     @GetMapping("/person/{id}")
     public Optional<Person> findPersonById(@PathVariable int id) {
-        return persons.stream().filter(p -> p.getId() == id).findFirst();
+        return repository.findById(id);
     }
     @DeleteMapping("/person/{id}")
     public void deletePerson(@PathVariable int id) {
-        persons.removeIf(p -> p.getId() == id);
-    }
-    @GetMapping("/")
-    public String hello() {
-        return "Hello, World!";
+        repository.deleteById(id);
     }
 }
