@@ -18,11 +18,6 @@ import java.util.Optional;
 public class MessageController {
     @Autowired
     private MessageRepository repository;
-    private List<Message> messages = new ArrayList<Message>(Arrays.asList(
-            new Message("Письмо о любви", "Я тебя люблю", LocalDate.now()),
-            new Message("Письмо о ненависти", "Я тебя ненавижу", LocalDate.now()),
-            new Message("Письмо о страхе", "Я тебя боюсь", LocalDate.now()))
-    );
 
     @GetMapping("/message")
     public Iterable<Message> getMessages() {
