@@ -1,6 +1,5 @@
 package org.example.task14.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.example.task14.dto.Message;
 import org.example.task14.dto.Person;
 import org.example.task14.repository.MessageRepository;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -53,5 +53,27 @@ public class PersonService {
         return repository.findById(personId)
                 .map(Person::getMessageList)
                 .orElse(Collections.emptyList());
+    }
+    public List<Person> findAll() {
+        return repository.findAll();
+    }
+    public Person findById(int id) {
+        return repository.findById(id).orElseThrow(() -> new NoSuchElementException("Not found person by id:" + id));
+    }
+    public Person save(Person person) {
+        return repository.save(person);
+    }
+    public void removeById(int id) {
+        repository.deleteById(id);
+    }
+    public Person updateById(int id, Person person) {
+        return repository.findById(id).map(oldPerson -> {
+            oldPerson.setFirstname(person.getFirstname());
+            oldPerson.setSurname(person.getSurname());
+            oldPerson.setLastname(person.getLastname());
+            oldPerson.setMessageList(person.getMessageList());
+            oldPerson.setBirthday(person.getBirthday());
+            return repository.save(oldPerson);
+        }).orElseThrow(() -> new NoSuchElementException("Not found person by id:" + id));
     }
 }
